@@ -1,0 +1,15 @@
+# ninja log v5
+1	332	0	CMakeFiles/gles3jni.dir/gl3stub_wrapper.c.o	28bdb11b268bfb24
+21	482	0	CMakeFiles/gles3jni.dir/RendererES3.cpp.o	58a1aa6d41f0e594
+12	551	0	CMakeFiles/gles3jni.dir/gles3jni.cpp.o	5962517e30a5b5af
+552	811	0	D:/_PROJECTS/Android_GLJNI_Yo/app/build/intermediates/cmake/debug/obj/arm64-v8a/libgles3jni.so	11017665c5d45241
+4	150	0	CMakeFiles/gles3jni.dir/gl3stub_wrapper.c.o	28bdb11b268bfb24
+9	225	0	CMakeFiles/gles3jni.dir/RendererES3.cpp.o	58a1aa6d41f0e594
+6	623	0	CMakeFiles/gles3jni.dir/gles3jni.cpp.o	5962517e30a5b5af
+623	1017	0	D:/_PROJECTS/Android_GLJNI_Yo/app/build/intermediates/cmake/debug/obj/arm64-v8a/libgles3jni.so	11017665c5d45241
+3	421	0	CMakeFiles/gles3jni.dir/gles3jni.cpp.o	5962517e30a5b5af
+422	590	0	D:/_PROJECTS/Android_GLJNI_Yo/app/build/intermediates/cmake/debug/obj/arm64-v8a/libgles3jni.so	11017665c5d45241
+4	288	0	CMakeFiles/gles3jni.dir/gles3jni.cpp.o	5962517e30a5b5af
+288	428	0	D:/_PROJECTS/Android_GLJNI_Yo/app/build/intermediates/cmake/debug/obj/arm64-v8a/libgles3jni.so	11017665c5d45241
+4	443	0	CMakeFiles/gles3jni.dir/gles3jni.cpp.o	5962517e30a5b5af
+443	606	0	D:/_PROJECTS/Android_GLJNI_Yo/app/build/intermediates/cmake/debug/obj/arm64-v8a/libgles3jni.so	11017665c5d45241
