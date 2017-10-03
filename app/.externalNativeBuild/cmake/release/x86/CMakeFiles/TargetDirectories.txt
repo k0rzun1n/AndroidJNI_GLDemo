@@ -1,3 +1,0 @@
-D:/_PROJECTS/Android_GLJNI_Yo/app/.externalNativeBuild/cmake/release/x86/CMakeFiles/gles3jni.dir
-D:/_PROJECTS/Android_GLJNI_Yo/app/.externalNativeBuild/cmake/release/x86/CMakeFiles/edit_cache.dir
-D:/_PROJECTS/Android_GLJNI_Yo/app/.externalNativeBuild/cmake/release/x86/CMakeFiles/rebuild_cache.dir
