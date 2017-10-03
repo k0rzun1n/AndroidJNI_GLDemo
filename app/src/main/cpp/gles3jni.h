@@ -19,6 +19,7 @@
 
 #include <android/log.h>
 #include <math.h>
+#include "Renderer.h"
 
 #if DYNAMIC_ES3
 #include "gl3stub.h"
@@ -71,41 +72,12 @@ extern GLuint createProgram(const char* vtxSrc, const char* fragSrc);
 // ----------------------------------------------------------------------------
 // Interface to the ES2 and ES3 renderers, used by JNI code.
 
-class Renderer {
-public:
-    virtual ~Renderer();
-    void resize(int w, int h);
-    void render();
 
-protected:
-    Renderer();
-
-    // return a pointer to a buffer of MAX_INSTANCES * sizeof(vec2).
-    // the buffer is filled with per-instance offsets, then unmapped.
-    virtual float* mapOffsetBuf() = 0;
-    virtual void unmapOffsetBuf() = 0;
-    // return a pointer to a buffer of MAX_INSTANCES * sizeof(vec4).
-    // the buffer is filled with per-instance scale and rotation transforms.
-    virtual float* mapTransformBuf() = 0;
-    virtual void unmapTransformBuf() = 0;
-
-    virtual void draw(unsigned int numInstances) = 0;
-
-private:
-    void calcSceneParams(unsigned int w, unsigned int h, float* offsets);
-    void step();
-
-    unsigned int mNumInstances;
-    float mScale[2];
-    float mAngularVelocity[MAX_INSTANCES];
-    uint64_t mLastFrameNs;
-    float mAngles[MAX_INSTANCES];
-};
 
 //extern Renderer* createES2Renderer();
 extern Renderer* createES3Renderer_fireworks();
 extern Renderer* createES3Renderer_lp_animal();
-extern Renderer* createES3Renderer();
-extern Renderer* createES3Renderer();
+extern Renderer* createES3Renderer_flag();
+extern Renderer* createES3Renderer_butterfly();
 
 #endif // GLES3JNI_H
