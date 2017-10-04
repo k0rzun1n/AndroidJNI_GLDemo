@@ -17,6 +17,8 @@
 #ifndef GLES3JNI_H
 #define GLES3JNI_H 1
 
+#include <android/asset_manager.h>
+#include <android/asset_manager_jni.h>
 #include <android/log.h>
 #include <math.h>
 #include "Renderer.h"
@@ -68,6 +70,7 @@ extern const Vertex QUAD[4];
 extern bool checkGlError(const char* funcName);
 extern GLuint createShader(GLenum shaderType, const char* src);
 extern GLuint createProgram(const char* vtxSrc, const char* fragSrc);
+extern GLuint createProgramFromFiles(const char* vsfname, const char* fsfname);
 
 // ----------------------------------------------------------------------------
 // Interface to the ES2 and ES3 renderers, used by JNI code.

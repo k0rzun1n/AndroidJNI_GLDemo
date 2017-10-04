@@ -15,7 +15,7 @@
  */
 
 #include "gles3jni.h"
-#include "RendererES3_fireworks.h"
+#include "RendererES3_flag.h"
 
 #define STR(s) #s
 #define STRV(s) STR(s)
@@ -48,7 +48,7 @@ static const char FRAGMENT_SHADER[] =
                 "}\n";
 
 
-RendererES3_fireworks::RendererES3_fireworks()
+RendererES3_flag::RendererES3_flag()
         : mNumInstances(0),
           mLastFrameNs(0),
           mEglContext(eglGetCurrentContext()),
@@ -61,7 +61,7 @@ RendererES3_fireworks::RendererES3_fireworks()
         mVB[i] = 0;
 }
 
-RendererES3_fireworks::~RendererES3_fireworks() {
+RendererES3_flag::~RendererES3_flag() {
     /* The destructor may be called after the context has already been
      * destroyed, in which case our objects have already been destroyed.
      *
@@ -75,7 +75,7 @@ RendererES3_fireworks::~RendererES3_fireworks() {
     glDeleteProgram(mProgram);
 }
 
-void RendererES3_fireworks::resize(int w, int h) {
+void RendererES3_flag::resize(int w, int h) {
     auto offsets = mapOffsetBuf();
     calcSceneParams(w, h, offsets);
     unmapOffsetBuf();
@@ -91,7 +91,7 @@ void RendererES3_fireworks::resize(int w, int h) {
     glViewport(0, 0, w, h);
 }
 
-void RendererES3_fireworks::calcSceneParams(unsigned int w, unsigned int h,
+void RendererES3_flag::calcSceneParams(unsigned int w, unsigned int h,
                                             float *offsets) {
     // number of cells along the larger screen dimension
     const float NCELLS_MAJOR = MAX_INSTANCES_PER_SIDE;
@@ -132,7 +132,7 @@ void RendererES3_fireworks::calcSceneParams(unsigned int w, unsigned int h,
     mScale[minor] = 0.5f * CELL_SIZE * scene2clip[1];
 }
 
-void RendererES3_fireworks::step() {
+void RendererES3_flag::step() {
     timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
     auto nowNs = now.tv_sec * 1000000000ull + now.tv_nsec;
@@ -164,7 +164,7 @@ void RendererES3_fireworks::step() {
     mLastFrameNs = nowNs;
 }
 
-//void RendererES3_fireworks::render() {
+//void RendererES3_flag::render() {
 //    step();
 //
 //    glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
@@ -174,7 +174,7 @@ void RendererES3_fireworks::step() {
 //}
 
 Renderer *createES3Renderer_fireworks() {
-    RendererES3_fireworks *renderer = new RendererES3_fireworks;
+    RendererES3_flag *renderer = new RendererES3_flag;
     if (!renderer->init()) {
         delete renderer;
         return NULL;
@@ -183,11 +183,8 @@ Renderer *createES3Renderer_fireworks() {
 }
 
 
-bool RendererES3_fireworks::init() {
-
-//    mProgram = createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-    mProgram = createProgramFromFiles("v_fireworks.glsl", "f_fireworks.glsl");
-
+bool RendererES3_flag::init() {
+    mProgram = createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     if (!mProgram)
         return false;
 
@@ -225,29 +222,29 @@ bool RendererES3_fireworks::init() {
 }
 
 
-float *RendererES3_fireworks::mapOffsetBuf() {
+float *RendererES3_flag::mapOffsetBuf() {
     glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_OFFSET]);
     return (float *) glMapBufferRange(GL_ARRAY_BUFFER,
                                       0, MAX_INSTANCES * 2 * sizeof(float),
                                       GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 }
 
-void RendererES3_fireworks::unmapOffsetBuf() {
+void RendererES3_flag::unmapOffsetBuf() {
     glUnmapBuffer(GL_ARRAY_BUFFER);
 }
 
-float *RendererES3_fireworks::mapTransformBuf() {
+float *RendererES3_flag::mapTransformBuf() {
     glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_SCALEROT]);
     return (float *) glMapBufferRange(GL_ARRAY_BUFFER,
                                       0, MAX_INSTANCES * 4 * sizeof(float),
                                       GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 }
 
-void RendererES3_fireworks::unmapTransformBuf() {
+void RendererES3_flag::unmapTransformBuf() {
     glUnmapBuffer(GL_ARRAY_BUFFER);
 }
 
-void RendererES3_fireworks::draw() {
+void RendererES3_flag::draw() {
     step();
     glUseProgram(mProgram);
     glBindVertexArray(mVBState);
