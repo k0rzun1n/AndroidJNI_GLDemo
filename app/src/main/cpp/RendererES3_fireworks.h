@@ -54,8 +54,7 @@ private:
     };
 
     int *mapStateBuf();
-    float *mapPosBuf();
-    float *mapSpdBuf();
+    float *mapPosSpdBuf();
     float *mapTimerBuf();
     void unmapBuf();
 

@@ -70,27 +70,28 @@ GLuint createShader(GLenum shaderType, const char *src) {
 }
 
 AAssetManager *mAssMan;
-GLuint createProgramFromFiles(const char *vsfname, const char *fsfname, const char *fbVarying) { //make 2d fbVaryings later
+
+GLuint createProgramFromFiles(const char *vsfname, const char *fsfname, const char **tfVaryings) {
     AAsset *asset = AAssetManager_open(mAssMan, vsfname, AASSET_MODE_BUFFER);
     size_t fileLength = AAsset_getLength(asset);
-    char *vtxSrc = new char[fileLength+1];
+    char *vtxSrc = new char[fileLength + 1];
     AAsset_read(asset, vtxSrc, fileLength);
     AAsset_close(asset);
-    vtxSrc[fileLength]=0;
+    vtxSrc[fileLength] = 0;
 
     asset = AAssetManager_open(mAssMan, fsfname, AASSET_MODE_BUFFER);
     fileLength = AAsset_getLength(asset);
-    char *fragSrc = new char[fileLength+1];
+    char *fragSrc = new char[fileLength + 1];
     AAsset_read(asset, fragSrc, fileLength);
     AAsset_close(asset);
-    fragSrc[fileLength]=0;
+    fragSrc[fileLength] = 0;
 
-    if (fbVarying != NULL)
-        ALOGV("fbv:%s", fbVarying);
+    if (tfVaryings != NULL)
+        ALOGV("fbv:%s", tfVaryings);
     ALOGV("fshader:%s", fragSrc);
     ALOGV("vshader:%s", vtxSrc);
 
-    GLuint mProg = createProgram(vtxSrc, fragSrc, fbVarying);
+    GLuint mProg = createProgram(vtxSrc, fragSrc, tfVaryings);
 
     delete[] fragSrc;
     delete[] vtxSrc;
@@ -98,32 +99,31 @@ GLuint createProgramFromFiles(const char *vsfname, const char *fsfname, const ch
     return mProg;
 }
 
-GLuint createProgram(const char *vtxSrc, const char *fragSrc, const char *fbVarying) {
+GLuint createProgram(const char *vtxSrc, const char *fragSrc, const char **tfVaryings) {
     GLuint vtxShader = 0;
     GLuint fragShader = 0;
     GLuint program = 0;
     GLint linked = GL_FALSE;
-
-    vtxShader = createShader(GL_VERTEX_SHADER, vtxSrc);
-    if (!vtxShader)
-        goto exit;
-
-    fragShader = createShader(GL_FRAGMENT_SHADER, fragSrc);
-    if (!fragShader)
-        goto exit;
 
     program = glCreateProgram();
     if (!program) {
         checkGlError("glCreateProgram");
         goto exit;
     }
+
+    vtxShader = createShader(GL_VERTEX_SHADER, vtxSrc);
+    if (!vtxShader)
+        goto exit;
     glAttachShader(program, vtxShader);
+
+    fragShader = createShader(GL_FRAGMENT_SHADER, fragSrc);
+    if (!fragShader)
+        goto exit;
     glAttachShader(program, fragShader);
 
-    if (fbVarying != NULL) {
-        const GLchar *feedbackVaryings[] = {fbVarying};
-        glTransformFeedbackVaryings(program, 1, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
-    }
+    if (tfVaryings != NULL)
+        glTransformFeedbackVaryings(program, 3, tfVaryings, GL_SEPARATE_ATTRIBS);
+
     glLinkProgram(program);
     glGetProgramiv(program, GL_LINK_STATUS, &linked);
     if (!linked) {
