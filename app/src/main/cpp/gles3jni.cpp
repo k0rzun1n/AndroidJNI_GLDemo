@@ -70,7 +70,7 @@ GLuint createShader(GLenum shaderType, const char *src) {
 }
 
 AAssetManager *mAssMan;
-GLuint createProgramFromFiles(const char *vsfname, const char *fsfname) {
+GLuint createProgramFromFiles(const char *vsfname, const char *fsfname, const char *fbVarying) { //make 2d fbVaryings later
     AAsset *asset = AAssetManager_open(mAssMan, vsfname, AASSET_MODE_BUFFER);
     size_t fileLength = AAsset_getLength(asset);
     char *vtxSrc = new char[fileLength+1];
@@ -85,18 +85,20 @@ GLuint createProgramFromFiles(const char *vsfname, const char *fsfname) {
     AAsset_close(asset);
     fragSrc[fileLength]=0;
 
+    if (fbVarying != NULL)
+        ALOGV("fbv:%s", fbVarying);
     ALOGV("fshader:%s", fragSrc);
     ALOGV("vshader:%s", vtxSrc);
 
-    GLuint mProg = createProgram(vtxSrc, fragSrc);
+    GLuint mProg = createProgram(vtxSrc, fragSrc, fbVarying);
 
-    delete fragSrc;
-    delete vtxSrc;
+    delete[] fragSrc;
+    delete[] vtxSrc;
 
     return mProg;
 }
 
-GLuint createProgram(const char *vtxSrc, const char *fragSrc) {
+GLuint createProgram(const char *vtxSrc, const char *fragSrc, const char *fbVarying) {
     GLuint vtxShader = 0;
     GLuint fragShader = 0;
     GLuint program = 0;
@@ -118,6 +120,10 @@ GLuint createProgram(const char *vtxSrc, const char *fragSrc) {
     glAttachShader(program, vtxShader);
     glAttachShader(program, fragShader);
 
+    if (fbVarying != NULL) {
+        const GLchar *feedbackVaryings[] = {fbVarying};
+        glTransformFeedbackVaryings(program, 1, feedbackVaryings, GL_INTERLEAVED_ATTRIBS);
+    }
     glLinkProgram(program);
     glGetProgramiv(program, GL_LINK_STATUS, &linked);
     if (!linked) {
