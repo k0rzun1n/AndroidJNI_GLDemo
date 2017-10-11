@@ -112,12 +112,42 @@ void RendererES3_fireworks::resize(int w, int h) {
 //}
 
 void RendererES3_fireworks::step() {
+
+    int rnd = rand() % 100;
+    if (rnd < 2) {//spawn N0
+        ALOGV("SPAWN N0 :%i", curN0);
+        float *transforms = mapPosSpdBuf();
+        float posX = ((float) (rand() % 1000) / 500. - 1.);
+        float spdX = 0.02*((float) (rand() % 1000) / 500. - 1.);
+        float spdY = (float) (rand() % 1000) / 100000. + 0.1;
+        int curOffset = curN0 * PARTICLES_PER_N0;
+        for (unsigned int i = 0; i < PARTICLES_PER_N0; i++) {
+            transforms[4 * (i + curOffset) + 0] = posX;
+            transforms[4 * (i + curOffset) + 1] = -0.95;
+            transforms[4 * (i + curOffset) + 2] = spdX;
+            transforms[4 * (i + curOffset) + 3] = spdY;
+//            transforms[4 * (i + curOffset) + 2] = ((float) (rand() % 1000) / 500. - 1.) * 0.001;
+//            transforms[4 * (i + curOffset) + 3] = ((float) (rand() % 100) / 50. - 1.) * 0.005 + 0.01;
+        }
+        unmapBuf();
+
+        int *state = mapStateBuf();
+        for (unsigned int i = 0; i < PARTICLES_PER_N0; i++) {
+            state[i + curOffset] = 1; //trail
+        }
+        state[curOffset] = 0; //head
+        unmapBuf();
+        curN0++;
+        curN0 %= FIREWORKS_N0_AMOUNT;
+    }
+
     glUseProgram(mProgramTF);
     glEnable(GL_RASTERIZER_DISCARD);
     glBeginTransformFeedback(GL_POINTS);
-    glDrawArrays(GL_POINTS, 0, 5);
+    glDrawArrays(GL_POINTS, 0, PARTICLES_AMOUNT);
     glEndTransformFeedback();
     glDisable(GL_RASTERIZER_DISCARD);
+
 //    timespec now;
 //    clock_gettime(CLOCK_MONOTONIC, &now);
 //    auto nowNs = now.tv_sec * 1000000000ull + now.tv_nsec;
@@ -132,8 +162,8 @@ void RendererES3_fireworks::step() {
 //        transforms[4 * i + 3] = 0.5;
 //    }
 //    unmapBuf();
-//
 //    mLastFrameNs = nowNs;
+
 }
 
 //void RendererES3_fireworks::render() {
@@ -154,18 +184,20 @@ Renderer *createES3Renderer_fireworks() {
     return renderer;
 }
 
-
 bool RendererES3_fireworks::init() {
 
 //    mProgram = createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     mProgram = createProgramFromFiles("v_fireworks.glsl", "f_fireworks.glsl", NULL);
-    const GLchar* feedbackVaryings[] = { "outState" ,"outPosSpd" ,"outTimer" };
-    mProgramTF = createProgramFromFiles("v_tf_fireworks.glsl", "f_tf_fireworks.glsl", feedbackVaryings);
+    const GLchar *feedbackVaryings[] = {"outState", "outPosSpd", "outTimer"};
+    mProgramTF = createProgramFromFiles("v_tf_fireworks.glsl", "f_tf_fireworks.glsl",
+                                        feedbackVaryings);
 
     if (!mProgram)
         return false;
     if (!mProgramTF)
         return false;
+
+//    uTime = glGetUniformLocation(mProgram,"time");
 
     glGenBuffers(VB_COUNT, mVB);
 //    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_INSTANCE]);
@@ -210,12 +242,21 @@ bool RendererES3_fireworks::init() {
 
     float *transforms = mapPosSpdBuf();
     for (unsigned int i = 0; i < PARTICLES_AMOUNT; i++) {
-        transforms[4 * i + 0] = 0.5;
-        transforms[4 * i + 1] = 0.5;
-        transforms[4 * i + 2] = 0.5;
-        transforms[4 * i + 3] = 0.5;
+        transforms[4 * i + 0] = 2.;//clip
+        transforms[4 * i + 1] = 2.;
+        transforms[4 * i + 2] = 0.;
+        transforms[4 * i + 3] = 0.;
     }
     unmapBuf();
+    float *colors = mapColorBuf();
+    for (unsigned int i = 0; i < PARTICLES_AMOUNT; i++) {
+        colors[4 * i + 0] = 0.;
+        colors[4 * i + 1] = 1.;
+        colors[4 * i + 2] = 1.;
+        colors[4 * i + 3] = 1.;
+    }
+    unmapBuf();
+    ALOGV("%i", PARTICLES_AMOUNT);
 
     ALOGV("Using OpenGL ES 3.0 renderer");
     return true;
@@ -230,6 +271,14 @@ int *RendererES3_fireworks::mapStateBuf() {
 
 float *RendererES3_fireworks::mapPosSpdBuf() {
     glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_POS_SPD]);
+    return (float *) glMapBufferRange(GL_ARRAY_BUFFER,
+                                      0 * sizeof(float), PARTICLES_AMOUNT * 4 * sizeof(float),
+//                                      GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+                                      GL_MAP_WRITE_BIT);
+}
+
+float *RendererES3_fireworks::mapColorBuf() {
+    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_COLOR]);
     return (float *) glMapBufferRange(GL_ARRAY_BUFFER,
                                       0 * sizeof(float), PARTICLES_AMOUNT * 4 * sizeof(float),
                                       GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);

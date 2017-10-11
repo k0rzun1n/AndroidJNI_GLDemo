@@ -19,6 +19,7 @@ package com.krz.DemoGLJNIYo;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.opengl.GLSurfaceView;
+import android.util.Log;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -51,10 +52,13 @@ class GLES3JNIView extends GLSurfaceView {
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
+            Log.d("","Activity onSurfaceChanged");
             GLES3JNILib.resize(width, height);
         }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+            //gets called on every screen turn
+            Log.d("","Activity onSurfaceCreated");
             GLES3JNILib.init(mAssMan);
         }
     }

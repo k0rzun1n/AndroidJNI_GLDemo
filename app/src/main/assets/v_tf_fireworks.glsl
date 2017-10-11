@@ -7,9 +7,18 @@ layout(location = 3) in float timer;
 flat out int outState;
 out vec4 outPosSpd;
 out float outTimer;
+
+float rand(float n){return fract(sin(n) * 4358.54123);}
+
 void main() {
-//    mat2 sr = mat2(scaleRot.xy, scaleRot.zw);
-    outPosSpd = vec4(pos+vec2(0.02),spd);
-    outTimer = 1.;
-    outState = 1;
+    outTimer = timer; //probably useless
+    outState = state;
+    vec2 npos = pos;
+    vec2 nspd = spd;
+    float damp = 1.-float(gl_VertexID % 100)/100.;
+    if(state == 1)//trail
+            npos += 0.0001*(-vec2(0.5) + vec2(rand(float(gl_VertexID)),rand(-101.101+float(gl_VertexID))));
+    nspd *=0.9;
+    nspd *= pow(damp,0.05);
+    outPosSpd = vec4(npos + nspd,nspd);
 }

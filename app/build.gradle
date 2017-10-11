@@ -16,11 +16,13 @@ android {
         }
         externalNativeBuild {
             cmake {
-                    // pass command line arguments to cmake: our CMakeLists.txt needs it
-                    // to load the right openGL lib (gles2 vs. gles3 )
-                    // other ndk flags could also be configured there [cppFlags, cFlags...]
+                // pass command line arguments to cmake: our CMakeLists.txt needs it
+                // to load the right openGL lib (gles2 vs. gles3 )
+                // other ndk flags could also be configured there [cppFlags, cFlags...]
                 arguments "-DANDROID_PLATFORM_LEVEL=${platformVersion}",
-                          '-DANDROID_TOOLCHAIN=clang', '-DANDROID_STL=gnustl_static'
+                        '-DANDROID_TOOLCHAIN=clang',
+                        '-DANDROID_STL=c++_static'
+                //'-DANDROID_STL=gnustl_static'
             }
         }
     }
@@ -28,7 +30,7 @@ android {
         release {
             minifyEnabled = false
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
-                          'proguard-rules.pro'
+                    'proguard-rules.pro'
         }
     }
     externalNativeBuild {

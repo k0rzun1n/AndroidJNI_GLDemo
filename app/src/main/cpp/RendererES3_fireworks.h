@@ -8,6 +8,7 @@
 #include <GLES3/gl3.h>
 #include <jni.h>
 #include <stdlib.h>
+#include "vector"
 #include <time.h>
 #include "Renderer.h"
 
@@ -22,6 +23,7 @@
 #define FIREWORKS_N0_AMOUNT 10
 #define FIREWORKS_N1_AMOUNT 10
 #define PARTICLES_PER_N0 PARTICLES_PER_RAY
+#define PARTICLES_N1_OFFSET (PARTICLES_PER_N0 * FIREWORKS_N0_AMOUNT)
 #define PARTICLES_PER_N1 (PARTICLES_PER_RAY * RAYS_PER_FIREWORK )
 #define PARTICLES_AMOUNT (FIREWORKS_N0_AMOUNT * PARTICLES_PER_N0 + FIREWORKS_N1_AMOUNT * PARTICLES_PER_N1)
 
@@ -38,6 +40,7 @@ public:
     bool init();
 
 private:
+
     void calcSceneParams(unsigned int w, unsigned int h, float *offsets);
 
     void step();
@@ -55,6 +58,7 @@ private:
 
     int *mapStateBuf();
     float *mapPosSpdBuf();
+    float *mapColorBuf();
     float *mapTimerBuf();
     void unmapBuf();
 
@@ -64,6 +68,10 @@ private:
     GLuint mProgram, mProgramTF;
     GLuint mVB[VB_COUNT];
     GLuint mVBState;
+    GLuint uTime;
+    int curN0 = 0;
+    int curN1 = 0;
+//    std::vector<float>
 };
 
 #endif //GLES3JNI_FW_H

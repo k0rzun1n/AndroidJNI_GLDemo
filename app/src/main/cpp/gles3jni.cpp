@@ -180,6 +180,7 @@ static GLboolean gl3stubInit() {
 
 JNIEXPORT void JNICALL
 Java_com_krz_DemoGLJNIYo_GLES3JNILib_init(JNIEnv *env, jobject obj, jobject assetManager) {
+    ALOGE("JNICALL INIT");
 
     mAssMan = AAssetManager_fromJava(env, assetManager);
 
@@ -220,6 +221,7 @@ Java_com_krz_DemoGLJNIYo_GLES3JNILib_init(JNIEnv *env, jobject obj, jobject asse
 
 JNIEXPORT void JNICALL
 Java_com_krz_DemoGLJNIYo_GLES3JNILib_resize(JNIEnv *env, jobject obj, jint width, jint height) {
+    ALOGE("JNICALL RESIZE");
     if (g_renderer_fireworks) {
         g_renderer_fireworks->resize(width, height);
     }
