@@ -242,18 +242,18 @@ bool RendererES3_fireworks::init() {
 
     float *transforms = mapPosSpdBuf();
     for (unsigned int i = 0; i < PARTICLES_AMOUNT; i++) {
-        transforms[4 * i + 0] = 2.;//clip
-        transforms[4 * i + 1] = 2.;
-        transforms[4 * i + 2] = 0.;
-        transforms[4 * i + 3] = 0.;
+        transforms[4 * i + 0] = 2.f;//clip
+        transforms[4 * i + 1] = 2.f;
+        transforms[4 * i + 2] = 0.f;
+        transforms[4 * i + 3] = 0.f;
     }
     unmapBuf();
     float *colors = mapColorBuf();
     for (unsigned int i = 0; i < PARTICLES_AMOUNT; i++) {
-        colors[4 * i + 0] = 0.;
-        colors[4 * i + 1] = 1.;
-        colors[4 * i + 2] = 1.;
-        colors[4 * i + 3] = 1.;
+        colors[4 * i + 0] = 0.f;
+        colors[4 * i + 1] = 1.f;
+        colors[4 * i + 2] = 1.f;
+        colors[4 * i + 3] = 1.f;
     }
     unmapBuf();
     ALOGV("%i", PARTICLES_AMOUNT);
