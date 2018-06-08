@@ -6,7 +6,7 @@ android {
     buildToolsVersion '26.0.2'
 
     defaultConfig {
-        applicationId 'com.krz.DemoGLJNIYo'
+        applicationId 'com.k0rzun1n.JNI_GLDemo'
         minSdkVersion 18
         targetSdkVersion 26
         ndk {

@@ -19,6 +19,6 @@
 
 <resources>
     <!-- Simple strings. -->
-    <string name="gles3jni_activity">DemoGLJNI_Yo</string>
+    <string name="gles3jni_activity">JNI_GLDemo</string>
 
 </resources>

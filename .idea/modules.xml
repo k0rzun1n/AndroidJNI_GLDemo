@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Android_GLJNI_Yo.iml" filepath="$PROJECT_DIR$/Android_GLJNI_Yo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AndroidJNI_GLDemo.iml" filepath="$PROJECT_DIR$/AndroidJNI_GLDemo.iml" />
+      <module fileurl="file://D:\_PROJECTS\AndroidJNI_GLDemo\Android_GLJNI_Yo.iml" filepath="D:\_PROJECTS\AndroidJNI_GLDemo\Android_GLJNI_Yo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
