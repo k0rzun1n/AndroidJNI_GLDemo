@@ -20,8 +20,8 @@
 #define PARTICLES_PER_RAY 100
 #define RAYS_PER_FIREWORK 10 + 1
 //different nesting levels
-#define FIREWORKS_N0_AMOUNT 10
-#define FIREWORKS_N1_AMOUNT 10
+#define FIREWORKS_N0_AMOUNT 20
+#define FIREWORKS_N1_AMOUNT 0 //not implemented
 #define PARTICLES_PER_N0 PARTICLES_PER_RAY
 #define PARTICLES_N1_OFFSET (PARTICLES_PER_N0 * FIREWORKS_N0_AMOUNT)
 #define PARTICLES_PER_N1 (PARTICLES_PER_RAY * RAYS_PER_FIREWORK )
@@ -37,11 +37,12 @@ public:
 
     RendererES3_fireworks();
 
-    bool init();
-
+    bool init(AAssetManager *assetManager);
+    AAssetManager *mAssetManager;
 private:
 
     void calcSceneParams(unsigned int w, unsigned int h, float *offsets);
+    bool loadTexture(const char *fname, GLuint texName, int texId);
 
     void step();
 
@@ -50,10 +51,11 @@ private:
     float mAngularVelocity[MAX_INSTANCES];
     uint64_t mLastFrameNs;
     float mAngles[MAX_INSTANCES];
+    std::vector<GLuint> mTextures = std::vector<GLuint>(2);
 
     enum {
 //        VB_INSTANCE, VB_SCALEROT, VB_OFFSET, VB_COUNT
-        VB_STATE, VB_POS_SPD, VB_TIMER, VB_COLOR, VB_COUNT
+        VB_STATE, VB_POS_SPD, VB_COLOR, VB_TIMER, VB_COUNT
     };
 
     int *mapStateBuf();
@@ -68,7 +70,7 @@ private:
     GLuint mProgram, mProgramTF;
     GLuint mVB[VB_COUNT];
     GLuint mVBState;
-    GLuint uTime;
+    GLint uTFTime;
     int curN0 = 0;
     int curN1 = 0;
 //    std::vector<float>

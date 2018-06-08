@@ -69,17 +69,17 @@ GLuint createShader(GLenum shaderType, const char *src) {
     return shader;
 }
 
-AAssetManager *mAssMan;
+AAssetManager *mAssetManager;
 
 GLuint createProgramFromFiles(const char *vsfname, const char *fsfname, const char **tfVaryings) {
-    AAsset *asset = AAssetManager_open(mAssMan, vsfname, AASSET_MODE_BUFFER);
+    AAsset *asset = AAssetManager_open(mAssetManager, vsfname, AASSET_MODE_BUFFER);
     size_t fileLength = AAsset_getLength(asset);
     char *vtxSrc = new char[fileLength + 1];
     AAsset_read(asset, vtxSrc, fileLength);
     AAsset_close(asset);
     vtxSrc[fileLength] = 0;
 
-    asset = AAssetManager_open(mAssMan, fsfname, AASSET_MODE_BUFFER);
+    asset = AAssetManager_open(mAssetManager, fsfname, AASSET_MODE_BUFFER);
     fileLength = AAsset_getLength(asset);
     char *fragSrc = new char[fileLength + 1];
     AAsset_read(asset, fragSrc, fileLength);
@@ -182,7 +182,7 @@ JNIEXPORT void JNICALL
 Java_com_krz_DemoGLJNIYo_GLES3JNILib_init(JNIEnv *env, jobject obj, jobject assetManager) {
     ALOGE("JNICALL INIT");
 
-    mAssMan = AAssetManager_fromJava(env, assetManager);
+    mAssetManager = AAssetManager_fromJava(env, assetManager);
 
     if (g_renderer_fireworks) {
         delete g_renderer_fireworks;
@@ -208,7 +208,7 @@ Java_com_krz_DemoGLJNIYo_GLES3JNILib_init(JNIEnv *env, jobject obj, jobject asse
 
     const char *versionStr = (const char *) glGetString(GL_VERSION);
     if (strstr(versionStr, "OpenGL ES 3.") && gl3stubInit()) {
-        g_renderer_fireworks = createES3Renderer_fireworks();
+        g_renderer_fireworks = createES3Renderer_fireworks(mAssetManager);
 //        g_renderer_flag = createES3Renderer();
 //        g_renderer_lp_animal = createES3Renderer();
 //        g_renderer_butterfly = createES3Renderer();

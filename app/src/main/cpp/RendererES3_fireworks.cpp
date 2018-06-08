@@ -16,6 +16,9 @@
 
 #include "gles3jni.h"
 #include "RendererES3_fireworks.h"
+#include "lodepng.h"
+
+using namespace std;
 
 #define STR(s) #s
 #define STRV(s) STR(s)
@@ -26,6 +29,12 @@
 #define TIMER_ATTRIB 3
 #define COLOR_ATTRIB 4
 
+static double now_ms() {
+    struct timespec res;
+    clock_gettime(CLOCK_MONOTONIC, &res);
+//    clock_gettime(CLOCK_REALTIME, &res);
+    return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
+}
 
 RendererES3_fireworks::RendererES3_fireworks()
         : mNumInstances(0),
@@ -114,16 +123,16 @@ void RendererES3_fireworks::resize(int w, int h) {
 void RendererES3_fireworks::step() {
 
     int rnd = rand() % 100;
-    if (rnd < 2) {//spawn N0
+    if (rnd < 8) {//spawn N0
         ALOGV("SPAWN N0 :%i", curN0);
         float *transforms = mapPosSpdBuf();
-        float posX = ((float) (rand() % 1000) / 500. - 1.);
-        float spdX = 0.02*((float) (rand() % 1000) / 500. - 1.);
-        float spdY = (float) (rand() % 1000) / 100000. + 0.1;
+        float posX = ((float) (rand() % 1000) / 500.f - 1.f);
+        float spdX = 0.02f * ((float) (rand() % 1000) / 500.f - 1.f);
+        float spdY = (float) (rand() % 1000) / 10000.f + 0.1f;
         int curOffset = curN0 * PARTICLES_PER_N0;
         for (unsigned int i = 0; i < PARTICLES_PER_N0; i++) {
             transforms[4 * (i + curOffset) + 0] = posX;
-            transforms[4 * (i + curOffset) + 1] = -0.95;
+            transforms[4 * (i + curOffset) + 1] = -1.1f;
             transforms[4 * (i + curOffset) + 2] = spdX;
             transforms[4 * (i + curOffset) + 3] = spdY;
 //            transforms[4 * (i + curOffset) + 2] = ((float) (rand() % 1000) / 500. - 1.) * 0.001;
@@ -137,11 +146,19 @@ void RendererES3_fireworks::step() {
         }
         state[curOffset] = 0; //head
         unmapBuf();
+        float *timer = mapTimerBuf();
+        float msec = (float)now_ms();
+        for (unsigned int i = 0; i < PARTICLES_PER_N0; i++) {
+            timer[i + curOffset] = msec;
+        }
+        unmapBuf();
+
         curN0++;
         curN0 %= FIREWORKS_N0_AMOUNT;
     }
 
     glUseProgram(mProgramTF);
+    glUniform1f(uTFTime, (float)now_ms());
     glEnable(GL_RASTERIZER_DISCARD);
     glBeginTransformFeedback(GL_POINTS);
     glDrawArrays(GL_POINTS, 0, PARTICLES_AMOUNT);
@@ -175,20 +192,55 @@ void RendererES3_fireworks::step() {
 //    checkGlError("Renderer::render");
 //}
 
-Renderer *createES3Renderer_fireworks() {
+Renderer *createES3Renderer_fireworks(AAssetManager *mAssetManager) {
     RendererES3_fireworks *renderer = new RendererES3_fireworks;
-    if (!renderer->init()) {
+    if (!renderer->init(mAssetManager)) {
         delete renderer;
         return NULL;
     }
     return renderer;
 }
 
-bool RendererES3_fireworks::init() {
+bool RendererES3_fireworks::loadTexture(const char *fname, GLuint texName, int texId) {
+    AAsset *asset = AAssetManager_open(mAssetManager, fname, AASSET_MODE_BUFFER);
+    auto fileLength = AAsset_getLength(asset);
+    auto texRaw = vector<unsigned char>(fileLength);
+    AAsset_read(asset, &texRaw[0], fileLength);
+    AAsset_close(asset);
+
+    auto texData = vector<unsigned char>();
+    unsigned int w, h;
+    int error = lodepng::decode(texData, w, h, texRaw, LCT_GREY, 8);
+    if (error != 0) {
+//        std::cout << "error " << error << ": " << lodepng_error_text(error) << std::endl;
+        ALOGE("lodepng error: %i", error);
+        ALOGE("lodepng error: %s", lodepng_error_text(error));
+        return false;
+    }
+    ALOGE("azz %i", texData.data()[32769]);
+    ALOGE("azz %i %i", w, h);
+    ALOGE("azz %i", texData.size());
+    glActiveTexture(GL_TEXTURE0 + texId);
+    glBindTexture(GL_TEXTURE_2D, texName);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, w, h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE,
+                 &texData[0]);
+
+
+    return true;
+}
+
+bool RendererES3_fireworks::init(AAssetManager *assetManager) {
+    mAssetManager = assetManager;
 
 //    mProgram = createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     mProgram = createProgramFromFiles("v_fireworks.glsl", "f_fireworks.glsl", NULL);
-    const GLchar *feedbackVaryings[] = {"outState", "outPosSpd", "outTimer"};
+    const GLchar *feedbackVaryings[] = {"outState", "outPosSpd", "outColor"};//, "outTimer"};
     mProgramTF = createProgramFromFiles("v_tf_fireworks.glsl", "f_tf_fireworks.glsl",
                                         feedbackVaryings);
 
@@ -197,7 +249,20 @@ bool RendererES3_fireworks::init() {
     if (!mProgramTF)
         return false;
 
-//    uTime = glGetUniformLocation(mProgram,"time");
+    glDisable(GL_DEPTH_TEST);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glEnable(GL_BLEND);
+
+    glUseProgram(mProgram);
+    glEnable(GL_TEXTURE_2D);
+    glGenTextures(2, &mTextures[0]);
+    loadTexture("spark1.png", mTextures[0], 0);
+    loadTexture("spark2.png", mTextures[1], 1);
+    glUniform1i(glGetUniformLocation(mProgram, "headTex"), 0);
+    glUniform1i(glGetUniformLocation(mProgram, "trailTex"), 1);
+
+    uTFTime = glGetUniformLocation(mProgramTF,"curTime");
 
     glGenBuffers(VB_COUNT, mVB);
 //    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_INSTANCE]);
@@ -226,19 +291,18 @@ bool RendererES3_fireworks::init() {
     glEnableVertexAttribArray(POS_ATTRIB);
     glEnableVertexAttribArray(SPEED_ATTRIB);
 
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_TIMER]);
-    glVertexAttribPointer(TIMER_ATTRIB, 1, GL_FLOAT, GL_FALSE, 1 * sizeof(float), 0);
-    glEnableVertexAttribArray(TIMER_ATTRIB);
-
     glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_COLOR]);
     glVertexAttribPointer(COLOR_ATTRIB, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
     glEnableVertexAttribArray(COLOR_ATTRIB);
 
+    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_TIMER]);
+    glVertexAttribPointer(TIMER_ATTRIB, 1, GL_FLOAT, GL_FALSE, 1 * sizeof(float), 0);
+    glEnableVertexAttribArray(TIMER_ATTRIB);
+
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, mVB[VB_STATE]);
     glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 1, mVB[VB_POS_SPD]);
-    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 2, mVB[VB_TIMER]);
-//    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 3, mVB[VB_STATE]);
-
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 2, mVB[VB_COLOR]);
+    glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 3, mVB[VB_TIMER]);
 
     float *transforms = mapPosSpdBuf();
     for (unsigned int i = 0; i < PARTICLES_AMOUNT; i++) {
@@ -250,8 +314,8 @@ bool RendererES3_fireworks::init() {
     unmapBuf();
     float *colors = mapColorBuf();
     for (unsigned int i = 0; i < PARTICLES_AMOUNT; i++) {
-        colors[4 * i + 0] = 0.f;
-        colors[4 * i + 1] = 1.f;
+        colors[4 * i + 0] = 1.f;
+        colors[4 * i + 1] = 0.f;
         colors[4 * i + 2] = 1.f;
         colors[4 * i + 3] = 1.f;
     }

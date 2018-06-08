@@ -78,9 +78,9 @@ extern GLuint createProgramFromFiles(const char* vsfname, const char* fsfname, c
 
 
 //extern Renderer* createES2Renderer();
-extern Renderer* createES3Renderer_fireworks();
-extern Renderer* createES3Renderer_lp_animal();
-extern Renderer* createES3Renderer_flag();
-extern Renderer* createES3Renderer_butterfly();
+extern Renderer* createES3Renderer_fireworks(AAssetManager *mAssetManager);
+extern Renderer* createES3Renderer_lp_animal(AAssetManager *mAssetManager);
+extern Renderer* createES3Renderer_flag(AAssetManager *mAssetManager);
+extern Renderer* createES3Renderer_butterfly(AAssetManager *mAssetManager);
 
 #endif // GLES3JNI_H

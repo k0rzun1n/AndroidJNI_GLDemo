@@ -40,10 +40,10 @@ class GLES3JNIView extends GLSurfaceView {
     }
 
     private static class Renderer implements GLSurfaceView.Renderer {
-        private AssetManager mAssMan;
+        private AssetManager mAssetManager;
 
         public void setAssetManager(AssetManager am) {
-            mAssMan = am;
+            mAssetManager = am;
         }
 
 
@@ -59,7 +59,7 @@ class GLES3JNIView extends GLSurfaceView {
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             //gets called on every screen turn
             Log.d("","Activity onSurfaceCreated");
-            GLES3JNILib.init(mAssMan);
+            GLES3JNILib.init(mAssetManager);
         }
     }
 }

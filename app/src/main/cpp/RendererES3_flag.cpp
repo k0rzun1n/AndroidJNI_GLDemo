@@ -173,7 +173,7 @@ void RendererES3_flag::step() {
 //    checkGlError("Renderer::render");
 //}
 
-Renderer *createES3Renderer_fireworks() {
+Renderer *createES3Renderer_flag() {
     RendererES3_flag *renderer = new RendererES3_flag;
     if (!renderer->init()) {
         delete renderer;

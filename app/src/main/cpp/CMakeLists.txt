@@ -24,7 +24,8 @@ endif (${ANDROID_PLATFORM_LEVEL} LESS 11)
 add_library(gles3jni SHARED
             gl3stub_wrapper.c
             gles3jni.cpp 
-            RendererES3_fireworks.cpp)
+            RendererES3_fireworks.cpp
+            lodepng.cpp)
 
 # Include libraries needed for gles3jni lib
 target_link_libraries(gles3jni
